@@ -15,7 +15,7 @@ class Game:
         self.paused = False
         self.debug = config['DEBUG']
         
-        self.maze = Maze(self, rows = 20, cols = 40)
+        self.maze = Maze(self, rows = 10, cols = 22)
         self.maze.create_maze()
 
     def debug_neighbours(self):
@@ -69,9 +69,10 @@ class Game:
             pygame.display.flip()
 
 if __name__ == '__main__':
+    
     pygame.init()
 
-    with open(os.path.join('game', 'config.json')) as f:
+    with open('config.json') as f:
         config = json.loads(f.read())
 
     app = Game(config = config)

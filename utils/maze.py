@@ -1,7 +1,6 @@
 import pygame
 import typing
 import random
-import math
 
 PosType = typing.Tuple[int, int]
 Direction = typing.Literal['N', 'E', 'S', 'W']
@@ -66,6 +65,14 @@ class Maze:
         self.path = []
 
     def _init_grid(self):
+        self.set_attrs()
+        self.grid.clear()
+        for x in range(1, self.cols + 1):
+            self.grid.append([])
+            for y in range(1, self.rows + 1):
+                self.grid[x - 1].append(Cell(pos = (x, y), cell_size = self.cell_size, app = self.app))
+    
+    def set_attrs(self):
         self.cell_size = min(
             (pygame.display.get_window_size()[0] - 50) // self.cols,
             (pygame.display.get_window_size()[1] - 100) // self.rows
@@ -75,11 +82,6 @@ class Maze:
             (pygame.display.get_window_size()[0] - self.cols * self.cell_size) // 2,
             (pygame.display.get_window_size()[1] - self.rows * self.cell_size) // 2
         )
-
-        for x in range(1, self.cols + 1):
-            self.grid.append([])
-            for y in range(1, self.rows + 1):
-                self.grid[x - 1].append(Cell(pos = (x, y), cell_size = self.cell_size, app = self.app))
 
     def get_cell(self, pos: PosType) -> "Cell":
         try:
@@ -160,11 +162,9 @@ class Maze:
             if self.app.debug:
                 self._debug_draw_path(open_set = visited, current = current_node)
 
-        self.path = path
         return path
 
     def _debug_draw_path(self, open_set, current):
-        return
         for node in open_set:
                 pygame.draw.rect(
                     surface = self.app.window,
@@ -205,7 +205,6 @@ class Maze:
         return False
 
     def _draw_debug_generation(self, visited, history, old, new):
-        return
         self.app.window.fill((0, 0, 0))
 
         for cell in history:

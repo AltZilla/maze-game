@@ -1,4 +1,4 @@
-import pygame, math, random
+import pygame, math, random, os
 
 from pygame.sprite import Group, Sprite
 from typing import NamedTuple, List, Literal, TYPE_CHECKING
@@ -59,31 +59,13 @@ class Movable(Sprite):
 class Player(Movable):
     def __init__(self, app):
         self.app = app
-        self.image = pygame.Surface(size = (15, 15))
-        self.image.fill((255, 255, 255))
+        self.image = pygame.transform.scale(pygame.image.load(os.path.join('assets', 'player.png')).convert_alpha(), size = (30, 30))
         self.rect: pygame.Rect = self.image.get_rect() #type: ignore
 
         # movement
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 150
         super().__init__()
-            
-    def _collision(self, direction) -> bool:
-        for wall in filter(lambda s: isinstance(s, Wall), self.app.sprites.sprites()):
-            if self.rect.colliderect(wall.rect):
-                new_pos, diff = self.rect.copy(), 5
-                if direction == 'horizontal':
-                    if self.direction.x < 0: # moving left
-                        new_pos.left = wall.rect.right 
-                    if self.direction.x > 0: # moving right
-                        new_pos.right = wall.rect.left
-                    
-                if direction == 'vertical':
-                    if self.direction.y < 0: # moving upw
-                        new_pos.top = wall.rect.bottom
-                    if self.direction.y > 0: # moving down
-                        new_pos.bottom = wall.rect.top
-                return new_pos
 
     def update(self, delta_time) -> None:
         pressed = pygame.key.get_pressed()
@@ -105,7 +87,6 @@ class Player(Movable):
             self.direction.y = 0
         
         self.move(delta_time = delta_time)
-        self._reposition()
 
 class IDK(Movable):
     def __init__(self, app, pos: tuple):
@@ -120,6 +101,7 @@ class IDK(Movable):
 
         self.last_updated_at = 0
         self.has_collided = False
+        self.times_edited_path = 0
 
         self.path = []
         super().__init__()
@@ -127,12 +109,24 @@ class IDK(Movable):
     def update_path(self):
         my_cell = self.app.maze.get_cell(self.rect.center)
         player_cell = self.app.maze.get_cell(self.app.player.rect.center)
+        self.app.maze.path = self.path.copy()
         if self.path == [] or self.path[-1] != player_cell:
+            if self.path and player_cell in self.path:
+                del self.path[self.path.index(player_cell) + 1:]
+                return
+            elif self.path and self.times_edited_path < 3:
+                print('hhhh')
+                neighbours = self.app.maze.get_neighbours(target_pos = self.path[-1].pos, filter_cant_move = True)
+                if player_cell in neighbours:
+                    self.path.append(player_cell)
+                    self.times_edited_path += 1
+                    return
+            self.times_edited_path = 0
             self.path = self.app.maze.find_path(
                 my_cell, player_cell
             )
 
-        while self.path and self.path[0].rect.inflate(- self.app.maze.cell_size / 1.5, - self.app.maze.cell_size / 1.5).collidepoint(self.rect.center):
+        if self.path and self.path[0].rect.center == self.rect.center:
             self.path.pop(0)
 
     def update(self, delta_time):
