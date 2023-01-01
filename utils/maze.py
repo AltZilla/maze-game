@@ -47,7 +47,7 @@ class Cell:
         for point in points:
             yield pygame.draw.line(
                 surface = window,
-                color = (255, 255, 255),
+                color = self.app.config['cell_color'],
                 start_pos = point[0],
                 end_pos = point[1],
                 width = 3

@@ -1,3 +1,15 @@
 {
-    "DEBUG": false
+    "debug": false,
+    "match_time": 60,
+    "n_minotaurs": 1,
+    "cell_color": [255, 255, 255],
+    "text": {
+        "won": "YOU WIN !!",
+        "lost": "GAME OVER !!"
+    },
+    "background_color": {
+        "won": [0, 255, 0],
+        "playing": [0, 0, 0],
+        "lost": [255, 0, 0]
+    }
 }
